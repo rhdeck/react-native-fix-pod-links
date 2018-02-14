@@ -2,9 +2,11 @@ const fs = require("fs");
 const xcode = require("xcode");
 const Path = require("path");
 const Glob = require("glob");
+function getPodPath(basepath) {
+  return Path.join(basepath, "ios", "Pods", "**");
+}
 function fixDependencies(basepath = process.cwd()) {
   const projectPath = Path.resolve(basepath, "package.json");
-  const podPath = Path.join(basepath, "ios", "Pods", "**");
   const package = require(projectPath);
   const dependencies = package.dependencies;
   var ret = 0;
@@ -24,7 +26,6 @@ function fixDependencies(basepath = process.cwd()) {
       const modulePath = Path.join(basepath, "node_modules", k);
       //Look for ios directory
       if (fs.lstatSync(modulePath).isSymbolicLink()) {
-        console.log("Found linked module ", k);
         //This is linked! We should look into this
         const globs = Glob.sync(
           Path.join(modulePath, "**", "project.pbxproj")
@@ -35,9 +36,9 @@ function fixDependencies(basepath = process.cwd()) {
           let proj = xcode.project(glob);
           proj.parseSync();
           try {
-            proj.removeFromHeaderSearchPaths(podPath);
+            proj.removeFromHeaderSearchPaths(getPodPath(basepath));
           } catch (e) {}
-          proj.addToHeaderSearchPaths('"' + podPath + '"');
+          proj.addToHeaderSearchPaths('"' + getPodPath(basepath) + '"');
           const str = proj.writeSync();
           fs.writeFileSync(glob, str);
           console.log("Added header path to module", k);
@@ -77,12 +78,11 @@ function unfixDependencies(basepath = process.cwd()) {
         globs.map(glob => {
           let proj = xcode.project(glob);
           proj.parseSync();
-          targetpath = Path.join(basepath, "ios", "Pods", "**");
-
-          proj.removeFromHeaderSearchPaths(targetpath);
+          console.log(getPodPath(basepath));
+          proj.removeFromHeaderSearchPaths(getPodPath(basepath));
           const str = proj.writeSync();
           fs.writeFileSync(glob, str);
-          console.log("Updated linked module", k);
+          console.log("Removed search path from linked module", k);
           ret++;
         });
       } else {
