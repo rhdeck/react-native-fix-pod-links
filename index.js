@@ -4,6 +4,7 @@ const Path = require("path");
 const Glob = require("glob");
 function fixDependencies(basepath = process.cwd()) {
   const projectPath = Path.resolve(basepath, "package.json");
+  const podPath = Path.join(basepath, "ios", "Pods", "**");
   const package = require(projectPath);
   const dependencies = package.dependencies;
   var ret = 0;
@@ -22,7 +23,6 @@ function fixDependencies(basepath = process.cwd()) {
       //Nodepath
       const modulePath = Path.join(basepath, "node_modules", k);
       //Look for ios directory
-      console.log("Checking this module", modulePath);
       if (fs.lstatSync(modulePath).isSymbolicLink()) {
         console.log("Found linked module ", k);
         //This is linked! We should look into this
@@ -34,15 +34,15 @@ function fixDependencies(basepath = process.cwd()) {
         globs.map(glob => {
           let proj = xcode.project(glob);
           proj.parseSync();
-          proj.addToHeaderSearchPaths(
-            '"' + Path.join(basepath, "ios", "Pods", "**") + '"'
-          );
+          try {
+            proj.removeFromHeaderSearchPaths(podPath);
+          } catch (e) {}
+          proj.addToHeaderSearchPaths('"' + podPath + '"');
           const str = proj.writeSync();
           fs.writeFileSync(glob, str);
+          console.log("Added header path to module", k);
           return ret;
         });
-      } else {
-        console.log("Module not a link:", modulePath);
       }
     });
   return ret;
@@ -67,9 +67,7 @@ function unfixDependencies(basepath = process.cwd()) {
       //Nodepath
       const modulePath = Path.join(basepath, "node_modules", k);
       //Look for ios directory
-      console.log("Checking this module", modulePath);
       if (fs.lstatSync(modulePath).isSymbolicLink()) {
-        console.log("Found linked module ", k);
         //This is linked! We should look into this
         const globs = Glob.sync(
           Path.join(modulePath, "**", "project.pbxproj")
@@ -84,10 +82,10 @@ function unfixDependencies(basepath = process.cwd()) {
           proj.removeFromHeaderSearchPaths(targetpath);
           const str = proj.writeSync();
           fs.writeFileSync(glob, str);
+          console.log("Updated linked module", k);
           ret++;
         });
       } else {
-        console.log("Module not a link:", modulePath);
       }
     });
   return ret;
