@@ -78,7 +78,6 @@ function unfixDependencies(basepath = process.cwd()) {
         globs.map(glob => {
           let proj = xcode.project(glob);
           proj.parseSync();
-          console.log(getPodPath(basepath));
           proj.removeFromHeaderSearchPaths(getPodPath(basepath));
           const str = proj.writeSync();
           fs.writeFileSync(glob, str);
