@@ -1,6 +1,6 @@
 {
   "name": "react-native-fix-pod-links",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Fix header search paths in linked react native modules",
   "main": "index.js",
   "scripts": {
@@ -10,7 +10,12 @@
     "type": "git",
     "url": "git+https://github.com/rhdeck/react-native-fix-pod-links.git"
   },
-  "keywords": ["react-native", "ios", "native", "components"],
+  "keywords": [
+    "react-native",
+    "ios",
+    "native",
+    "components"
+  ],
   "author": "Ray Deck",
   "license": "MIT",
   "bugs": {
@@ -20,7 +25,10 @@
   "rnpm": {
     "plugin": "plugin.js"
   },
-  "bin": { "react-native-fix-pod-links": "cli.js", "rnfpl": "cli.js" },
+  "bin": {
+    "react-native-fix-pod-links": "cli.js",
+    "rnfpl": "cli.js"
+  },
   "dependencies": {
     "commander": "^2.14.1",
     "glob": "^7.1.2",
