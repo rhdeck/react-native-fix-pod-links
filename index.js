@@ -37,8 +37,10 @@ function fixDependencies(basepath = process.cwd()) {
           proj.parseSync();
           try {
             proj.removeFromHeaderSearchPaths(getPodPath(basepath));
+            proj.removeFromFrameworkSearchPaths(getPodPath(basepath));
           } catch (e) {}
           proj.addToHeaderSearchPaths('"' + getPodPath(basepath) + '"');
+          proj.addToFrameworkSearchPaths('"' + getPodPath(basepath) + '"');
           const str = proj.writeSync();
           fs.writeFileSync(glob, str);
           console.log("Added header path to module", k);
@@ -79,6 +81,7 @@ function unfixDependencies(basepath = process.cwd()) {
           let proj = xcode.project(glob);
           proj.parseSync();
           proj.removeFromHeaderSearchPaths(getPodPath(basepath));
+          proj.removeFromFrameworkSearchPaths(getPodPath(basepath));
           const str = proj.writeSync();
           fs.writeFileSync(glob, str);
           console.log("Removed search path from linked module", k);
