@@ -3,7 +3,9 @@ const xcode = require("xcode");
 const Path = require("path");
 const Glob = require("glob");
 function getPodPath(basepath) {
-  return Path.join(basepath, "ios", "Pods", "**");
+  if (!basepath) basepath = process.cwd();
+  const ret = Path.join(basepath, "ios", "Pods", "**");
+  return ret;
 }
 function fixDependencies(basepath = process.cwd()) {
   const projectPath = Path.resolve(basepath, "package.json");
@@ -37,14 +39,20 @@ function fixDependencies(basepath = process.cwd()) {
           proj.parseSync();
           try {
             proj.removeFromHeaderSearchPaths(getPodPath(basepath));
+          } catch (e) {}
+          try {
             proj.removeFromFrameworkSearchPaths(getPodPath(basepath));
           } catch (e) {}
-          proj.addToHeaderSearchPaths('"' + getPodPath(basepath) + '"');
-          proj.addToFrameworkSearchPaths('"' + getPodPath(basepath) + '"');
-          const str = proj.writeSync();
-          fs.writeFileSync(glob, str);
-          console.log("Added header path to module", k);
-          return ret;
+          try {
+            const searchPath = '"' + getPodPath(basepath) + '"';
+            proj.addToHeaderSearchPaths(searchPath);
+            proj.addToFrameworkSearchPaths(searchPath);
+            const str = proj.writeSync();
+            fs.writeFileSync(glob, str);
+            return ret;
+          } catch (e) {
+            console.log(e);
+          }
         });
       }
     });
