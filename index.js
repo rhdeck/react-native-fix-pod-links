@@ -88,8 +88,12 @@ function unfixDependencies(basepath = process.cwd()) {
         globs.map(glob => {
           let proj = xcode.project(glob);
           proj.parseSync();
-          proj.removeFromHeaderSearchPaths(getPodPath(basepath));
-          proj.removeFromFrameworkSearchPaths(getPodPath(basepath));
+          try {
+            proj.removeFromHeaderSearchPaths(getPodPath(basepath));
+          } catch (e) {}
+          try {
+            proj.removeFromFrameworkSearchPaths(getPodPath(basepath));
+          } catch (e) {}
           const str = proj.writeSync();
           fs.writeFileSync(glob, str);
           console.log("Removed search path from linked module", k);
