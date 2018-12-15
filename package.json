@@ -30,8 +30,8 @@
     "rnfpl": "cli.js"
   },
   "dependencies": {
+    "@raydeck/xcode": "^2.2.0",
     "commander": "^2.14.1",
-    "glob": "^7.1.2",
-    "xcode": "rhdeck/cordova-node-xcode"
+    "glob": "^7.1.2"
   }
 }

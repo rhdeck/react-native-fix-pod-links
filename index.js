@@ -1,5 +1,5 @@
 const fs = require("fs");
-const xcode = require("xcode");
+const xcode = require("@raydeck/xcode");
 const Path = require("path");
 const Glob = require("glob");
 function getPodPath(basepath) {
